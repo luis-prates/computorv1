@@ -1,4 +1,5 @@
 use std::io;
+use std::env;
 
 #[derive(Debug, Clone)]
 struct Member {
@@ -9,19 +10,31 @@ struct Member {
 }
 
 fn main() {
-    println!("Type an up to second degree polynomial equation:");
+	let args: Vec<String> = env::args().collect();
+	let equation: String;
 
-	let mut input_equation = String::new();
+	if args.len() == 2 {
+		let trimmed_equation = args[1].clone().trim().to_string();
+		equation = trimmed_equation;
+	} else if args.len() == 1 {
+		println!("Type an up to second degree polynomial equation:");
 
-	io::stdin()
-		.read_line(&mut input_equation)
-		.expect("Failed to read line");
+		let mut input_equation = String::new();
 
-	// input will come as "5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0"
-	// 42 * X^0 = 42 * X^0
+		io::stdin()
+			.read_line(&mut input_equation)
+			.expect("Failed to read line");
 
+		// input will come as "5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0"
+		// 42 * X^0 = 42 * X^0
 
-	let equation = input_equation.trim();
+		let trimmed_equation = input_equation.trim().to_string();
+		equation = trimmed_equation;
+
+	} else {
+		println!("Usage: Use no arguments for interactive prompt or type up to second degree polynomial equation as a command line argument.");
+		return ;
+	}
 
 
 	let equation_iter = equation.split_whitespace();
