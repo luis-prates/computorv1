@@ -48,15 +48,19 @@ fn main() {
 
 	for entry in equation_iter {
 		match entry {
-			s if s.starts_with("X^") => {
-				if let Some(power_str) = s.strip_prefix("X^") {
-					if let Ok(power) = power_str.parse::<u64>() {
-						curr_power = power;
+			s if s.starts_with("X") => {
+				if s.starts_with("X^") {
+					if let Some(power_str) = s.strip_prefix("X^") {
+						if let Ok(power) = power_str.parse::<u64>() {
+							curr_power = power;
+						} else {
+							println!("Failed to parse power value: {}", power_str);
+						}
 					} else {
-						println!("Failed to parse power value: {}", power_str);
+						println!("Invalid format: {}", s);
 					}
 				} else {
-					println!("Invalid format: {}", s);
+					curr_power = 1;
 				}
 			},
 			"+" => {
@@ -68,6 +72,7 @@ fn main() {
 				};
 				members_array.push(member.clone());
 				curr_polarity = 1;
+				curr_value = 1.0;
 			},
 			"-" => {
 				member = Member {
@@ -78,6 +83,7 @@ fn main() {
 				};
 				members_array.push(member.clone());
 				curr_polarity = -1;
+				curr_value = 1.0;
 			},
 			"=" => {
 				member = Member {
@@ -116,7 +122,7 @@ fn main() {
 		println!("Member is {:?}", group);
 	}
 
-	let max_power = members_array
+	let mut max_power = members_array
 						.iter()
 						.map(|member| member.power)
 						.max()
@@ -135,12 +141,21 @@ fn main() {
 		}
 	}
 
+	while coefficients[max_power as usize] == 0.0 {
+		if max_power == 0 {
+			coefficients.clear()
+		} else {
+			coefficients.pop();
+		}
+		max_power = max_power - 1;
+	}
+
 	println!("Coefficients: {:?}", coefficients);
 
 	print_polynomial(&coefficients);
 
 	println!("Polynomial degree: {}", max_power);
-	
+
 	if max_power > 2 {
 		println!("The polynomial degree is strictly greater than 2, I can't solve.");
 		return;
@@ -164,19 +179,25 @@ fn main() {
 			let x = -b / (2.0 * a);
 			println!("The solution is:\n{}", x);
 		} else {
-			let x1 = (-b + delta.sqrt()) / (2.0 * a);
-			let x2 = (-b - delta.sqrt()) / (2.0 * a);
+			let x1 = (-b + my_sqrt(delta)) / (2.0 * a);
+			let x2 = (-b - my_sqrt(delta)) / (2.0 * a);
 			println!("Discriminant is strictly positive, the two solutions are:\n{:.6}\n{:.6}", x1, x2);
 		}
 	} else if max_power == 1 {
 		if coefficients[0] == 0.0 && coefficients[1] == 0.0 {
 			println!("Every real number is a solution");
 		} else {
-			println!("The solution is:\n{}", -coefficients[0] / coefficients[1]);
+			println!("The solution is:\n{}",
+					 if (-coefficients[0] / coefficients[1]) == 0.0 {
+						 0.0
+					 } else {
+						 -coefficients[0] / coefficients[1]
+					 }
+			);
 		}
 	} else if max_power == 0 {
-		if coefficients[0] == 0.0 {
-			println!("Every real number is a solution");
+		if coefficients.is_empty() {
+			println!("Solution is 0 = 0");
 		} else  {
 			println!("The equation provided is invalid");
 		}
@@ -211,4 +232,36 @@ fn print_polynomial(coefficients: &[f64]) {
     }
 
     println!("= 0");
+}
+
+fn my_sqrt(x: f64) -> f64 {
+	if x < 0.0 {
+		panic!("Cannot compute the square root of a negative number");
+	}
+
+	// Initial guess for the square root
+	let mut guess = x / 2.0;
+
+	// The precision you desire
+	let epsilon = 1e-10;
+
+	// Loop until the guess is close enough to the actual square root
+	while (guess * guess - x).abs() > epsilon {
+		guess = (guess + x / guess) / 2.0;
+	}
+
+	guess
+}
+
+fn gcd(mut n: u64, mut m: u64) -> u64 {
+	assert!(n != 0 && m != 0);
+	while m != 0 {
+		if m < n {
+			let t = m;
+			m = n;
+			n = t;
+		}
+		m = m % n;
+	}
+	n
 }
