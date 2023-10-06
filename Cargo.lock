@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "computorv1"
+name = "computor"
 version = "0.1.0"

@@ -1,5 +1,6 @@
 use std::io;
 use std::env;
+use std::process::exit;
 
 #[derive(Debug, Clone)]
 struct Member {
@@ -17,7 +18,7 @@ fn main() {
 		let trimmed_equation = args[1].clone().trim().to_string();
 		equation = trimmed_equation;
 	} else if args.len() == 1 {
-		println!("Type an up to second degree polynomial equation:");
+		println!("Type an up to second degree polynomial equation (without double quotes):");
 
 		let mut input_equation = String::new();
 
@@ -33,7 +34,7 @@ fn main() {
 
 	} else {
 		println!("Usage: Use no arguments for interactive prompt or type up to second degree polynomial equation as a command line argument.");
-		return ;
+		exit(-1);
 	}
 
 
@@ -55,12 +56,17 @@ fn main() {
 							curr_power = power;
 						} else {
 							println!("Failed to parse power value: {}", power_str);
+							exit(1);
 						}
 					} else {
 						println!("Invalid format: {}", s);
+						exit(2);
 					}
-				} else {
+				} else if s.len() == 1 {
 					curr_power = 1;
+				} else {
+					println!("Invalid format: {}", s);
+					exit(2);
 				}
 			},
 			"+" => {
@@ -95,6 +101,7 @@ fn main() {
 				members_array.push(member.clone());
 				right_side = true;
 				curr_polarity = 1;
+				curr_value = 1.0;
 
 			},
 			"*" => {},
@@ -104,6 +111,7 @@ fn main() {
 					curr_power = 0;
 				} else {
 					println!("Invalid input: {}", entry);
+					exit(2);
 				}
 			}
 		}
@@ -117,10 +125,10 @@ fn main() {
 
 	members_array.push(member.clone());
 
-	for group in &members_array {
+	// for group in &members_array {
 
-		println!("Member is {:?}", group);
-	}
+	// 	println!("Member is {:?}", group);
+	// }
 
 	let mut max_power = members_array
 						.iter()
@@ -150,7 +158,7 @@ fn main() {
 		max_power = max_power - 1;
 	}
 
-	println!("Coefficients: {:?}", coefficients);
+	// println!("Coefficients: {:?}", coefficients);
 
 	print_polynomial(&coefficients);
 
@@ -158,7 +166,7 @@ fn main() {
 
 	if max_power > 2 {
 		println!("The polynomial degree is strictly greater than 2, I can't solve.");
-		return;
+		exit(3);
 	}
 
 	if max_power == 2 {
@@ -168,24 +176,28 @@ fn main() {
 
 		if a == 0.0 && b == 0.0 && c == 0.0 {
 			println!("Every real number is a solution");
-			return;
+			exit(0);
 		}
 		
 		let delta = b * b - 4.0 * a * c;
 	
 		if delta < 0.0 {
 			println!("Discriminant is strictly negative. No real solutions");
+			exit(0);
 		} else if delta == 0.0 {
 			let x = -b / (2.0 * a);
 			println!("The solution is:\n{}", x);
+			exit(0);
 		} else {
 			let x1 = (-b + my_sqrt(delta)) / (2.0 * a);
 			let x2 = (-b - my_sqrt(delta)) / (2.0 * a);
 			println!("Discriminant is strictly positive, the two solutions are:\n{:.6}\n{:.6}", x1, x2);
+			exit(0);
 		}
 	} else if max_power == 1 {
 		if coefficients[0] == 0.0 && coefficients[1] == 0.0 {
 			println!("Every real number is a solution");
+			exit(0);
 		} else {
 			println!("The solution is:\n{}",
 					 if (-coefficients[0] / coefficients[1]) == 0.0 {
@@ -194,12 +206,15 @@ fn main() {
 						 -coefficients[0] / coefficients[1]
 					 }
 			);
+			exit(0);
 		}
 	} else if max_power == 0 {
 		if coefficients.is_empty() {
 			println!("Solution is 0 = 0");
+			exit(0);
 		} else  {
 			println!("The equation provided is invalid");
+			exit(4);
 		}
 	}
 }
