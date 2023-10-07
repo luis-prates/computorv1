@@ -41,7 +41,7 @@ fn main() {
 	let equation_iter = equation.split_whitespace();
 
 	let mut curr_polarity: i64 = 1;
-	let mut curr_value = 0.0;
+	let mut curr_value = 1.0;
 	let mut curr_power = 0;
 	let mut right_side = false;
 	let mut members_array: Vec<Member> = Vec::new();
@@ -190,7 +190,13 @@ fn main() {
 			exit(0);
 		} else if delta == 0.0 {
 			let x = -b / (2.0 * a);
-			println!("The solution is:\n{}", x);
+			println!("The solution is:\n{}",
+					if x == 0.0 {
+						0.0
+					} else {
+						x
+					}
+			);
 			exit(0);
 		} else {
 			let x1 = (-b + my_sqrt(delta)) / (2.0 * a);
