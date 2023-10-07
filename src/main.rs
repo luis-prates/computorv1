@@ -125,10 +125,9 @@ fn main() {
 
 	members_array.push(member.clone());
 
-	// for group in &members_array {
-
-	// 	println!("Member is {:?}", group);
-	// }
+	for group in &members_array {
+		println!("Member is {:?}", group);
+	}
 
 	let mut max_power = members_array
 						.iter()
@@ -149,13 +148,15 @@ fn main() {
 		}
 	}
 
-	while coefficients[max_power as usize] == 0.0 {
+	while !coefficients.is_empty() && coefficients[max_power as usize] == 0.0 {
 		if max_power == 0 {
 			coefficients.clear()
 		} else {
 			coefficients.pop();
 		}
-		max_power = max_power - 1;
+		if max_power != 0 {
+			max_power = max_power - 1;
+		}
 	}
 
 	// println!("Coefficients: {:?}", coefficients);
@@ -183,6 +184,9 @@ fn main() {
 	
 		if delta < 0.0 {
 			println!("Discriminant is strictly negative. No real solutions");
+			let x1 = -b / (2.0 * a);
+			let x2 = my_sqrt(delta * -1.0) / (2.0 * a);
+			println!("Complex solutions are:\n{} + {:.6}i\n{} - {:.6}i", x1, x2, x1, x2);
 			exit(0);
 		} else if delta == 0.0 {
 			let x = -b / (2.0 * a);
@@ -210,7 +214,7 @@ fn main() {
 		}
 	} else if max_power == 0 {
 		if coefficients.is_empty() {
-			println!("Solution is 0 = 0");
+			println!("Every real number is a solution");
 			exit(0);
 		} else  {
 			println!("The equation provided is invalid");
@@ -223,7 +227,7 @@ fn print_polynomial(coefficients: &[f64]) {
     // let degree = coefficients.len() - 1;
 
     if coefficients.is_empty() {
-        println!("The polynomial is empty.");
+        println!("The polynomial is empty: 0 = 0");
         return;
     }
 
