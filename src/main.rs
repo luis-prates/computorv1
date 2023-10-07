@@ -190,7 +190,7 @@ fn main() {
 			exit(0);
 		} else if delta == 0.0 {
 			let x = -b / (2.0 * a);
-			println!("The solution is:\n{}",
+			println!("The discriminant is 0. The solution is:\n{}",
 					if x == 0.0 {
 						0.0
 					} else {
@@ -223,7 +223,7 @@ fn main() {
 			println!("Every real number is a solution");
 			exit(0);
 		} else  {
-			println!("The equation provided is invalid");
+			println!("The equation provided is invalid. There is no solution.");
 			exit(4);
 		}
 	}
